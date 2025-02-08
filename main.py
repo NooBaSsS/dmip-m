@@ -290,66 +290,19 @@ class Field:
                 for coordinate in coordinates:
                     if 1 == coordinate[0]:
                         to_remove.append(coordinate)
-
-        for coordinate in to_remove:
-            try:
-                available_coordinates.remove(coordinate)
-            except ValueError:
-                pass
+        for frame in available_coordinates:
+            for coordinate in to_remove: # удаляет координаты
+                try:
+                    frame.remove(coordinate)
+                    #input(f'{coordinate} + da')
+                except ValueError:
+                    pass
         return available_coordinates
 
     def make_matter_fragments(self) -> list:
         # создает список с обломками материи
         all_fragments = []  # список со всеми обломками
-        available_coordinates = []  # список с координатами, на которых можно размещать обломки
-        to_remove = []  # список с координатами, на которых нельзя размещать обломки
-        leave_clear = [[-1, 0], [-1, 1], [0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1]]
-
-        for screen_idx, screen in enumerate(self.field):  # создает список с координатами
-            screen_coordinates = []
-            for row_idx, row in enumerate(screen):
-                for col_idx, _ in enumerate(row):
-                    screen_coordinates.append((col_idx + 1, row_idx + 1, screen_idx + 1))
-            available_coordinates.append(screen_coordinates)
-        for coordinates in available_coordinates:  # удаляет координаты, на которых нельзя разместить обломки
-            if available_coordinates.index(coordinates) + 1 == PLAYER_START_FRAME:
-                if (PLAYER_START_X, PLAYER_START_Y, PLAYER_START_FRAME) in coordinates:
-                    coordinates.remove((PLAYER_START_X, PLAYER_START_Y, PLAYER_START_FRAME))
-            for coord in leave_clear:
-                to_remove.append(
-                    (
-                        PLAYER_START_X + coord[0],
-                        PLAYER_START_Y + coord[1],
-                        PLAYER_START_FRAME
-                     )
-                )
-            for hole_coordinate in (*self.black_holes_coordinates, *self.white_holes_coordinates):
-                to_remove.append(hole_coordinate)
-            if available_coordinates.index(coordinates) + 1 in \
-                 (1, 2, 3, 4, 5, 6):
-                for coordinate in coordinates:
-                    if FRAME_HEIGHT == coordinate[1]:
-                        to_remove.append(coordinate)
-            if available_coordinates.index(coordinates) + 1 in \
-                (4, 5, 6, 7, 8, 9):
-                for coordinate in coordinates:
-                    if 1 == coordinate[1]:
-                        to_remove.append(coordinate)
-            if available_coordinates.index(coordinates) + 1 in \
-                (1, 2, 4, 5, 7, 8):
-                for coordinate in coordinates:
-                    if FRAME_WIDTH == coordinate[0]:
-                        to_remove.append(coordinate)
-            if available_coordinates.index(coordinates) + 1 in \
-                (2, 3, 5, 6, 8, 9):
-                for coordinate in coordinates:
-                    if 1 == coordinate[0]:
-                        to_remove.append(coordinate)
-            for coordinate in to_remove:  # удаляет координаты
-                try:
-                    coordinates.remove(coordinate)
-                except ValueError:
-                    pass
+        available_coordinates = self.get_empty_coordinates()  # список с координатами, на которых можно размещать обломки
 
         for frame in available_coordinates:  # создает обломки
             shuffle(frame)
