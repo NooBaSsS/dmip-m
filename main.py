@@ -148,11 +148,11 @@ class Field:
         self.cols = cols
         self.rows = rows
         self.player = Player()
+        self.base = Base(BASE_X, BASE_Y, BASE_FRAME)
+        self.menu = Menu()
         self.frames = frames
         self.field = self.make_field()
         self.holes = self.make_holes(HOLES)
-        self.base = Base(BASE_X, BASE_Y, BASE_FRAME)
-        self.menu = Menu()
         self.black_holes_coordinates, self.white_holes_coordinates = self.get_holes_coordiates()
         self.matter_fragments = self.make_matter_fragments()
         self.show_control_hints = 0
@@ -194,9 +194,9 @@ class Field:
                     for hole in self.holes:
                         if (col, row, current_frame) == (hole.x, hole.y, hole.current_frame):  # отрисовывает дыры
                             if isinstance(hole, BlackHole):
-                                output += f'\033[37;40m{hole.force}\033[37;44m'
+                                output += f'\033[37;40m{hole.force}\033[37;44m'  # черная дыра
                                 break
-                            output += f'\033[30;47m{hole.force}\033[37;44m'
+                            output += f'\033[30;47m{hole.force}\033[37;44m'  # белая дыра
                             break
                         elif (col, row, current_frame) in self.matter_fragments:  # отрисовывает обломки материи
                             output += '\u2756'
@@ -206,10 +206,10 @@ class Field:
             output += '┃\n'
         output += f'┗{'━' * FRAME_WIDTH}┛'
         print('\033[H', end='')  # Перемещаем курсор в начало экрана
-        print(output, f'\n {self.show_map()}speed: {self.player.speed} \n', end='')
+        print(output, f'\n {self.show_map()}speed: {self.player.speed} \n', end='')  # вывод
         if not self.show_control_hints:
             print('Нажмите ENTER чтобы показать подсказки по управлению и легенду карты')
-        else:
+        else:  # вывод подсказок
             print(CONTROL_HINTS)
         print('\033[H ', end='')
 
@@ -218,9 +218,9 @@ class Field:
         holes = []
         available_coordinates = self.get_empty_coordinates()
 
-        for hole in range(HOLES):
+        for hole in range(HOLES):  # создает дыры
             chosen_frame = choice(available_coordinates)
-            holes.append(
+            holes.append(  # выбирает случайный тип дыры
                 choice(
                     (
                         WhiteHole(
@@ -248,11 +248,11 @@ class Field:
                 for col_idx, _ in enumerate(row):
                     screen_coordinates.append((col_idx + 1, row_idx + 1, screen_idx + 1))
             available_coordinates.append(screen_coordinates)
-        for coordinates in available_coordinates:
+        for coordinates in available_coordinates:  # удаляет координаты, на которых размещен игрок
             if available_coordinates.index(coordinates) + 1 == PLAYER_START_FRAME:
                 if (PLAYER_START_X, PLAYER_START_Y, PLAYER_START_FRAME) in coordinates:
                     coordinates.remove((PLAYER_START_X, PLAYER_START_Y, PLAYER_START_FRAME))
-            for coord in leave_clear:
+            for coord in leave_clear:  # добавляет координаты вокруг игрока в список для удаления
                 to_remove.append(
                     (
                         PLAYER_START_X + coord[0],
@@ -260,33 +260,33 @@ class Field:
                         PLAYER_START_FRAME
                      )
                 )
-            try:  # удаляет координаты, на которых уже есть объекты
+            try:  # добавляет координаты, на которых уже есть объекты в список для удаления
                 for hole_coordinate in (*self.black_holes_coordinates, *self.white_holes_coordinates):
                     to_remove.append(hole_coordinate)
             except AttributeError:
                 pass
-            try:  # удаляет координаты, на которых уже есть обломки материи
+            try:  # добавляет координаты, на которых уже есть обломки материи в список для удаления
                 for fragmet in self.matter_fragments:
                     to_remove.append(fragmet)
             except AttributeError:
                 pass
             if available_coordinates.index(coordinates) + 1 in \
-                 (1, 2, 3, 4, 5, 6):
+                (1, 2, 3, 4, 5, 6):  # добавляет координаты, находящиеся на стыке двух экранов в список для удаления
                 for coordinate in coordinates:
                     if FRAME_HEIGHT == coordinate[1]:
                         to_remove.append(coordinate)
             if available_coordinates.index(coordinates) + 1 in \
-                (4, 5, 6, 7, 8, 9):
+                (4, 5, 6, 7, 8, 9):  # добавляет координаты, находящиеся на стыке двух экранов в список для удаления
                 for coordinate in coordinates:
                     if 1 == coordinate[1]:
                         to_remove.append(coordinate)
             if available_coordinates.index(coordinates) + 1 in \
-                (1, 2, 4, 5, 7, 8):
+                (1, 2, 4, 5, 7, 8):  # добавляет координаты, находящиеся на стыке двух экранов в список для удаления
                 for coordinate in coordinates:
                     if FRAME_WIDTH == coordinate[0]:
                         to_remove.append(coordinate)
             if available_coordinates.index(coordinates) + 1 in \
-                (2, 3, 5, 6, 8, 9):
+                (2, 3, 5, 6, 8, 9):  # добавляет координаты, находящиеся на стыке двух экранов в список для удаления
                 for coordinate in coordinates:
                     if 1 == coordinate[0]:
                         to_remove.append(coordinate)
@@ -294,7 +294,6 @@ class Field:
             for coordinate in to_remove: # удаляет координаты
                 try:
                     frame.remove(coordinate)
-                    #input(f'{coordinate} + da')
                 except ValueError:
                     pass
         return available_coordinates
@@ -316,9 +315,9 @@ class Field:
         bh_coordinates = []
         wh_coordinates = []
         for hole in self.holes:
-            if isinstance(hole, BlackHole):
+            if isinstance(hole, BlackHole):  # добавляет координаты черных дыр
                 bh_coordinates.append((hole.x, hole.y, hole.current_frame))
-            else:
+            else:  # добавляет координаты белых дыр
                 wh_coordinates.append((hole.x, hole.y, hole.current_frame))
         return bh_coordinates, wh_coordinates
 
@@ -406,22 +405,22 @@ class Field:
                     self.player.state = 0
         for hole_coords in self.black_holes_coordinates:  # проверка коллизии с черными дырами
             if (self.player.x, self.player.y, self.player.current_frame) == hole_coords:
-                coords_add_after_tp = [[-1, 0], [-1, 1], [0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1]]
-                coords_after_tp = choice(self.white_holes_coordinates)
-                new_coords_after_tp = [0, 0, coords_after_tp[2]]
-                new_coords_after_tp[0] = coords_after_tp[0] + coords_add_after_tp[self.player.direction - 1][0]
-                new_coords_after_tp[1] = coords_after_tp[1] + coords_add_after_tp[self.player.direction - 1][1]
+                coords_add_after_tp = [[-1, 0], [-1, 1], [0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1]]  # координаты для телепортации
+                coords_after_tp = choice(self.white_holes_coordinates)  # выбор случайной белой дыры
+                new_coords_after_tp = [0, 0, coords_after_tp[2]]  # новые координаты после телепортации
+                new_coords_after_tp[0] = coords_after_tp[0] + coords_add_after_tp[self.player.direction - 1][0]  # вычисление x после телепортации
+                new_coords_after_tp[1] = coords_after_tp[1] + coords_add_after_tp[self.player.direction - 1][1]  # вычисление y после телепортации
                 self.player.x, self.player.y, self.player.current_frame = \
-                    new_coords_after_tp
-        for white_hole in self.white_holes_coordinates:  # проверка коллизии с черными дырами
+                    new_coords_after_tp  # телепортация игрока
+        for white_hole in self.white_holes_coordinates:  # проверка коллизии с белыми дырами
             if self.player.current_frame == white_hole[-1]:
-                if (self.player.x, self.player.y) == (white_hole[0], white_hole[1]):
-                    if not self.was_teleported:
+                if (self.player.x, self.player.y) == (white_hole[0], white_hole[1]):  # проверка коллизии с белой дырой
+                    if not self.was_teleported:  # телепортация игрока
                         self.player.x = randint(1, FRAME_WIDTH)
                         self.player.y = randint(1, FRAME_HEIGHT)
         if self.player.current_frame == BASE_FRAME:  # проверка коллизии с базой
             if (self.player.x, self.player.y) == (BASE_X, BASE_Y):
-                self.player.state = 2
+                self.player.state = 2  # победа
 
     def on_press(self, event) -> None:
         # запись нажатых клавиш
@@ -437,10 +436,10 @@ class Field:
         # отрисовка карты
         output = ''
         for i in range(1, self.frames + 1):
-            if self.player.current_frame == i: output += 'P'
-            else: output += '.'
-            if not i % 3 and i != 0: output += '   \n '
-        return output
+            if self.player.current_frame == i: output += 'P'  # отрисовка игрока
+            else: output += '.'  # отрисовка пустого места
+            if not i % 3 and i != 0: output += '   \n '  # отрисовка разделителя
+        return output  # вывод
 
     def main_game_cycle(self) -> None:
         # игра
@@ -551,11 +550,11 @@ class Menu():
     def select_menu_item(self) -> None:
         # выбор пункта в меню
         if self.current_screen == 0:
-            if self.selected_menu_item == 0:
+            if self.selected_menu_item == 0:  # начать игру
                 self.game_started = 1
-            if self.selected_menu_item == 1:
+            if self.selected_menu_item == 1:  # показать обучение
                 self.show_tutorial()
-            if self.selected_menu_item == 2:
+            if self.selected_menu_item == 2:  # выход
                 os._exit(0)
 
     def show_tutorial(self) -> None:
