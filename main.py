@@ -443,6 +443,8 @@ class Field:
 
     def main_game_cycle(self) -> None:
         # игра
+        print('Для правильной работы игры, пожалуйста, разверните окно терминала на весь экран и нажмите ENTER')
+        keyboard.wait('enter')
         if self.player.state in (0, 2, 4):  # перезапуск игры
             self.player = Player
             self.field = self.make_field()
