@@ -597,6 +597,7 @@ class Menu():
 
 if __name__ == '__main__':
     # запуск
+    os.system('cls')
     print('Для правильной работы игры, пожалуйста, разверните окно терминала на весь экран и нажмите ENTER')
     keyboard.wait('enter')
     field = Field()
